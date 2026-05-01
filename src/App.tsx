@@ -35,6 +35,28 @@ export default function App() {
 		setShowCreateForm(false);
 	};
 
+	const closeCreateModal = () => {
+		setShowCreateForm(false);
+	};
+
+	useEffect(() => {
+		if (!showCreateForm) return;
+
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === "Escape") {
+				setShowCreateForm(false);
+			}
+		};
+
+		document.body.classList.add("body--modal-open");
+		window.addEventListener("keydown", handleKeyDown);
+
+		return () => {
+			document.body.classList.remove("body--modal-open");
+			window.removeEventListener("keydown", handleKeyDown);
+		};
+	}, [showCreateForm]);
+
 	return (
 		<div className="app">
 			<header className="app-header">
@@ -74,9 +96,7 @@ export default function App() {
 					)}
 				</aside>
 				<main className="panel panel--right">
-					{showCreateForm ? (
-						<CreateListingForm onSuccess={handleListingCreated} />
-					) : selectedListing ? (
+					{selectedListing ? (
 						<ListingDetail
 							listing={selectedListing}
 							onBidSuccess={handleBidSuccess}
@@ -88,6 +108,45 @@ export default function App() {
 					)}
 				</main>
 			</div>
+
+			{/* Create listing modal */}
+			{showCreateForm && (
+				<div className="modal-layer">
+					<button
+						type="button"
+						className="modal-backdrop"
+						aria-label="Close create listing modal"
+						onClick={closeCreateModal}
+					/>
+					<div
+						className="modal-dialog"
+						role="dialog"
+						aria-modal="true"
+						aria-labelledby="create-listing-title"
+					>
+						<div className="modal-dialog__header">
+							<div>
+								<p className="modal-dialog__eyebrow">New Listing</p>
+								<h2 id="create-listing-title" className="modal-dialog__title">
+									List your equipment
+								</h2>
+							</div>
+							<button
+								type="button"
+								className="modal-dialog__close"
+								onClick={closeCreateModal}
+								aria-label="Close create listing modal"
+							>
+								×
+							</button>
+						</div>
+						<CreateListingForm
+							onSuccess={handleListingCreated}
+							onCancel={closeCreateModal}
+						/>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }

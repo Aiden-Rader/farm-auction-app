@@ -21,12 +21,10 @@ export default function ListingCard({ listing, isSelected, onClick }: Props) {
 	const closed = listing.status === "closed";
 
 	return (
-		<div
+		<button
+			type="button"
 			className={`listing-card ${isSelected ? "listing-card--selected" : ""} ${closed ? "listing-card--closed" : ""}`}
 			onClick={onClick}
-			role="button"
-			tabIndex={0}
-			onKeyDown={(e) => e.key === "Enter" && onClick()}
 		>
 			<img
 				src={listing.imageUrl}
@@ -47,6 +45,6 @@ export default function ListingCard({ listing, isSelected, onClick }: Props) {
 					{timeRemaining(listing.endsAt, listing.status)}
 				</div>
 			</div>
-		</div>
+		</button>
 	);
 }

@@ -35,6 +35,10 @@ interface BidRequest {
 
 interface CreateListingRequest {
 	title: string;
+	description?: string;
+	category?: Category;
+	startingPrice?: number;
+	imageUrl?: string;
 }
 
 // ============================================================
@@ -61,23 +65,45 @@ app.get("/api/listings", (_req: Request, res: Response) => {
 
 // POST /api/listings
 app.post("/api/listings", (req: Request, res: Response) => {
-	const { title } = req.body as CreateListingRequest;
+	const body = req.body as CreateListingRequest;
 
-	if (!title || typeof title !== "string" || title.trim() === "") {
+	if (!body.title || typeof body.title !== "string" || body.title.trim() === "") {
 		return res.status(400).json({ error: "Title is required" });
 	}
 
+	const startingPrice =
+		typeof body.startingPrice === "number" &&
+		Number.isFinite(body.startingPrice)
+			? body.startingPrice
+			: 0;
+
+	const category: Category =
+		body.category === "tractor" ||
+		body.category === "combine" ||
+		body.category === "implement" ||
+		body.category === "attachment"
+			? body.category
+			: "implement";
+
+	const title = body.title.trim();
+	const description =
+		typeof body.description === "string" ? body.description.trim() : "";
+	const imageUrl =
+		typeof body.imageUrl === "string" && body.imageUrl.trim() !== ""
+			? body.imageUrl.trim()
+			: `https://placehold.co/400x300?text=${encodeURIComponent(title)}`;
+
 	const listing: Listing = {
 		id: randomUUID(),
-		title: title.trim(),
-		description: "",
-		category: "implement",
-		startingPrice: 0,
-		currentBid: 0,
+		title,
+		description,
+		category,
+		startingPrice,
+		currentBid: startingPrice,
 		currentBidder: null,
 		status: "active",
 		endsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-		imageUrl: "",
+		imageUrl,
 	};
 
 	listings.push(listing);
@@ -108,21 +134,16 @@ app.post("/api/listings/:id/bids", (req: Request, res: Response) => {
 
 	const bid = req.body as BidRequest;
 
-	if (
-		!bid.bidder ||
-		typeof bid.bidder !== "string" ||
-		bid.bidder.trim() === ""
-	) {
+	if (!bid.bidder || typeof bid.bidder !== "string" || bid.bidder.trim() === "") {
 		return res.status(400).json({ error: "Bidder name is required" });
 	}
 
-	if (typeof bid.amount !== "number" || isNaN(bid.amount) || bid.amount <= 0) {
+	if (typeof bid.amount !== "number" || Number.isNaN(bid.amount) || bid.amount <= 0) {
 		return res
 			.status(400)
 			.json({ error: "Bid amount must be a positive number" });
 	}
 
-	//! First backend bug fix right here, this was backwards (i.e. Rejects bids that are equal to the current bid)
 	if (bid.amount <= listing.currentBid) {
 		return res.status(400).json({
 			error: `Bid must be greater than the current bid of $${listing.currentBid.toLocaleString()}`,

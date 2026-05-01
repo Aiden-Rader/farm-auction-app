@@ -21,6 +21,10 @@ body {
 	min-height: 100vh;
 }
 
+body.body--modal-open {
+	overflow: hidden;
+}
+
 /* ============================================================
    App shell
    ============================================================ */
@@ -368,9 +372,29 @@ body {
 	transition: border-color 0.15s;
 }
 
-.bid-form__field input:focus {
+.bid-form__field input:focus,
+.bid-form__field textarea:focus,
+.bid-form__field select:focus {
 	border-color: #2596be;
 	box-shadow: 0 0 0 2px #2596be30;
+}
+
+.bid-form__field textarea,
+.bid-form__field select {
+	padding: 8px 12px;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	font-size: 0.95rem;
+	outline: none;
+	transition: border-color 0.15s;
+	background: #fff;
+	color: #1a1a1a;
+}
+
+.bid-form__field textarea {
+	resize: vertical;
+	min-height: 96px;
+	font-family: inherit;
 }
 
 .bid-form__submit {
@@ -393,6 +417,112 @@ body {
 .bid-form__submit:disabled {
 	opacity: 0.6;
 	cursor: not-allowed;
+}
+
+.bid-form__cancel {
+	width: 100%;
+	margin-top: 10px;
+	padding: 10px;
+	background: transparent;
+	color: #555;
+	border: 1px solid #c8c8c8;
+	border-radius: 6px;
+	font-size: 0.95rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition:
+		border-color 0.15s,
+		color 0.15s,
+		background 0.15s;
+}
+
+.bid-form__cancel:hover:not(:disabled) {
+	background: #f3f3f3;
+	border-color: #a9a9a9;
+	color: #1a1a1a;
+}
+
+.bid-form__cancel:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+/* ============================================================
+   New Modal For Adding Listing (Create Form)
+   ============================================================ */
+.modal-layer {
+	position: fixed;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+	z-index: 30;
+}
+
+.modal-backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(10, 20, 26, 0.52);
+	backdrop-filter: blur(2px);
+	border: none;
+	padding: 0;
+	cursor: pointer;
+}
+
+.modal-dialog {
+	position: relative;
+	z-index: 1;
+	width: min(720px, 100%);
+	max-height: min(90vh, 900px);
+	overflow: auto;
+	background: linear-gradient(180deg, #ffffff 0%, #f8fbfc 100%);
+	border-radius: 18px;
+	box-shadow: 0 24px 64px rgba(0, 0, 0, 0.28);
+	padding: 20px;
+	border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.modal-dialog__header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin-bottom: 16px;
+}
+
+.modal-dialog__eyebrow {
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.16em;
+	color: #2596be;
+	margin-bottom: 6px;
+}
+
+.modal-dialog__title {
+	font-size: 1.35rem;
+	line-height: 1.2;
+	color: #102a36;
+}
+
+.modal-dialog__close {
+	width: 36px;
+	height: 36px;
+	border-radius: 999px;
+	border: 1px solid #d6e4ea;
+	background: rgba(237, 245, 248, 0.85);
+	color: #0d3d52;
+	font-size: 1.8rem;
+	line-height: 1;
+	cursor: pointer;
+	flex-shrink: 0;
+	transition: background 0.15s, transform 0.15s;
+}
+
+.modal-dialog__close:hover {
+	background: #dfeef4;
+	transform: translateY(-1px);
 }
 
 /* ============================================================

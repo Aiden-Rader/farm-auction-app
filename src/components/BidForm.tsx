@@ -24,7 +24,8 @@ export default function BidForm({ listing, onBidSuccess }: Props) {
 			setError("Bidder name is required.");
 			return;
 		}
-		if (isNaN(numAmount) || numAmount <= 0) {
+
+		if (Number.isNaN(numAmount) || numAmount <= 0) {
 			setError("Please enter a valid bid amount.");
 			return;
 		}
@@ -72,7 +73,7 @@ export default function BidForm({ listing, onBidSuccess }: Props) {
 				className="bid-form__submit"
 				disabled={submitting}
 			>
-				{submitting ? "Submitting…" : "Submit Bid"}
+				{submitting ? "Submitting..." : "Submit Bid"}
 			</button>
 		</form>
 	);
