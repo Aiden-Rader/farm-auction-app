@@ -122,7 +122,8 @@ app.post("/api/listings/:id/bids", (req: Request, res: Response) => {
 			.json({ error: "Bid amount must be a positive number" });
 	}
 
-	if (bid.amount >= listing.currentBid) {
+	//! First backend bug fix right here, this was backwards (i.e. Rejects bids that are equal to the current bid)
+	if (bid.amount <= listing.currentBid) {
 		return res.status(400).json({
 			error: `Bid must be greater than the current bid of $${listing.currentBid.toLocaleString()}`,
 		});
