@@ -7,10 +7,22 @@ interface Props {
 	onBidSuccess: (updated: Listing) => void;
 }
 
+/**
+ * Captures bidder details and submits a new leading bid.
+ *
+ * @param {Props} { listing, onBidSuccess }
+ * @returns {JSX.Element}
+ */
 export default function BidForm({ listing, onBidSuccess }: Props) {
 	const [error, setError] = useState<string | null>(null);
 	const [submitting, setSubmitting] = useState(false);
 
+	/**
+	 * Validates the bidder input and submits a new bid to the backend.
+	 *
+	 * @param {React.SubmitEvent<HTMLFormElement>} e
+	 * @returns {Promise<void>}
+	 */
 	const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setError(null);
@@ -68,11 +80,7 @@ export default function BidForm({ listing, onBidSuccess }: Props) {
 					disabled={submitting}
 				/>
 			</div>
-			<button
-				type="submit"
-				className="bid-form__submit"
-				disabled={submitting}
-			>
+			<button type="submit" className="bid-form__submit" disabled={submitting}>
 				{submitting ? "Submitting..." : "Submit Bid"}
 			</button>
 		</form>

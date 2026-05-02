@@ -11,6 +11,12 @@ interface Props {
 	onCancel: () => void;
 }
 
+/**
+ * Normalizes a form select value into one of the allowed categories.
+ *
+ * @param {FormDataEntryValue | null} value
+ * @returns {ListingCategory}
+ */
 function parseCategory(value: FormDataEntryValue | null): ListingCategory {
 	if (value === "tractor" || value === "combine" || value === "attachment") {
 		return value;
@@ -18,10 +24,22 @@ function parseCategory(value: FormDataEntryValue | null): ListingCategory {
 	return "implement";
 }
 
+/**
+ * Collects create-listing fields, validates them locally, and submits the new lot.
+ *
+ * @param {Props} { onSuccess, onCancel }
+ * @returns {JSX.Element}
+ */
 export default function CreateListingForm({ onSuccess, onCancel }: Props) {
 	const [error, setError] = useState<string | null>(null);
 	const [submitting, setSubmitting] = useState(false);
 
+	/**
+	 * Validates the form locally before submitting to the API.
+	 *
+	 * @param {React.SubmitEvent<HTMLFormElement>} e
+	 * @returns {Promise<void>}
+	 */
 	const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setError(null);

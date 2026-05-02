@@ -1,10 +1,25 @@
 import type { CreateListingInput, Listing } from "../types";
 
+/**
+ * Extracts the API error message from a failed response.
+ *
+ * @param {Response} res
+ * @returns {Promise<string>}
+ */
 async function readError(res: Response): Promise<string> {
 	const body = await res.json().catch(() => ({}));
 	return body.error || body.detail || "Request failed";
 }
 
+/**
+ * Loads listings from the server using the active search and category filters.
+ *
+ * @param {Object} [params]
+ *		@param {string} [params.search]
+ *		@param {string} [params.category]
+ *		@param {AbortSignal} [params.signal]
+ * @returns {Promise<Listing[]>}
+ */
 export async function getListings(params?: {
 	search?: string;
 	category?: string;
@@ -28,6 +43,12 @@ export async function getListings(params?: {
 	return res.json();
 }
 
+/**
+ * Fetches a single listing for detail views.
+ *
+ * @param {string} id
+ * @returns {Promise<Listing>}
+ */
 export async function getListing(id: string): Promise<Listing> {
 	const res = await fetch(`/api/listings/${id}`);
 
@@ -38,7 +59,15 @@ export async function getListing(id: string): Promise<Listing> {
 	return res.json();
 }
 
-export async function createListing(data: CreateListingInput): Promise<Listing> {
+/**
+ * Creates a listing through the server so IDs and defaults stay authoritative.
+ *
+ * @param {CreateListingInput} data
+ * @returns {Promise<Listing>}
+ */
+export async function createListing(
+	data: CreateListingInput,
+): Promise<Listing> {
 	const res = await fetch("/api/listings", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -52,6 +81,14 @@ export async function createListing(data: CreateListingInput): Promise<Listing> 
 	return res.json();
 }
 
+/**
+ * Submits a bid and returns the updated listing from the backend.
+ *
+ * @param {string} listingId
+ * @param {string} bidder
+ * @param {number} amount
+ * @returns {Promise<Listing>}
+ */
 export async function placeBid(
 	listingId: string,
 	bidder: string,

@@ -5,6 +5,9 @@ import ListingCard from "./components/ListingCard";
 import ListingDetail from "./components/ListingDetail";
 import { type Listing, type ListingCategory, listingCategories } from "./types";
 
+/**
+ * Coordinates listing loading, filtering, bidding, and the create-listing modal.
+ */
 export default function App() {
 	const [listings, setListings] = useState<Listing[]>([]);
 	const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -16,6 +19,9 @@ export default function App() {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
+	/**
+	 * Refetches listings whenever the active filters change.
+	 */
 	useEffect(() => {
 		const controller = new AbortController();
 
@@ -48,10 +54,21 @@ export default function App() {
 
 	const selectedListing = listings.find((l) => l.id === selectedId) ?? null;
 
+	/**
+	 * Replaces the updated listing in local state after a successful bid.
+	 *
+	 * @param {Listing} updated
+	 * @returns {void}
+	 */
 	const handleBidSuccess = (updated: Listing) => {
 		setListings((prev) => prev.map((l) => (l.id === updated.id ? updated : l)));
 	};
 
+	/**
+	 * Refreshes the current filtered result set from the backend.
+	 *
+	 * @returns {Promise<Listing[]>}
+	 */
 	const refreshListings = async () => {
 		const data = await getListings({
 			search: searchTerm,
@@ -61,6 +78,12 @@ export default function App() {
 		return data;
 	};
 
+	/**
+	 * Closes the modal, then reloads listings so the new item appears in the filtered view.
+	 *
+	 * @param {Listing} listing
+	 * @returns {Promise<void>}
+	 */
 	const handleListingCreated = async (listing: Listing) => {
 		const normalizedSearch = searchTerm.trim().toLowerCase();
 		const matchesSearch =
@@ -75,10 +98,20 @@ export default function App() {
 		await refreshListings();
 	};
 
+	/**
+	 * Closes the create-listing modal without changing the current filters.
+	 *
+	 * @returns {void}
+	 */
 	const closeCreateModal = () => {
 		setShowCreateForm(false);
 	};
 
+	/**
+	 * Locks background scroll and lets Escape close the modal.
+	 *
+	 * @returns {void}
+	 */
 	useEffect(() => {
 		if (!showCreateForm) return;
 

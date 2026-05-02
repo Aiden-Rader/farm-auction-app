@@ -1,7 +1,7 @@
-import { randomUUID } from "crypto";
-import { readFileSync } from "fs";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
+import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import cors from "cors";
 import express, { type Request, type Response } from "express";
 
@@ -65,6 +65,9 @@ app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
 
 // GET /api/listings
+/**
+ * Returns listings filtered by the active search term and category.
+ */
 app.get("/api/listings", (req: Request, res: Response) => {
 	const search =
 		typeof req.query.search === "string"
@@ -91,10 +94,17 @@ app.get("/api/listings", (req: Request, res: Response) => {
 });
 
 // POST /api/listings
+/**
+ * Creates a new listing with server-generated identity and defaults.
+ */
 app.post("/api/listings", (req: Request, res: Response) => {
 	const body = req.body as CreateListingRequest;
 
-	if (!body.title || typeof body.title !== "string" || body.title.trim() === "") {
+	if (
+		!body.title ||
+		typeof body.title !== "string" ||
+		body.title.trim() === ""
+	) {
 		return res.status(400).json({ error: "Title is required" });
 	}
 
@@ -138,6 +148,9 @@ app.post("/api/listings", (req: Request, res: Response) => {
 });
 
 // GET /api/listings/:id
+/**
+ * Returns a single listing by ID or a 404 if it does not exist.
+ */
 app.get("/api/listings/:id", (req: Request, res: Response) => {
 	const listing = listings.find((l) => l.id === req.params.id);
 	if (!listing) {
@@ -147,6 +160,9 @@ app.get("/api/listings/:id", (req: Request, res: Response) => {
 });
 
 // POST /api/listings/:id/bids
+/**
+ * Validates and applies a new leading bid for the requested listing.
+ */
 app.post("/api/listings/:id/bids", (req: Request, res: Response) => {
 	const listing = listings.find((l) => l.id === req.params.id);
 	if (!listing) {
@@ -161,11 +177,19 @@ app.post("/api/listings/:id/bids", (req: Request, res: Response) => {
 
 	const bid = req.body as BidRequest;
 
-	if (!bid.bidder || typeof bid.bidder !== "string" || bid.bidder.trim() === "") {
+	if (
+		!bid.bidder ||
+		typeof bid.bidder !== "string" ||
+		bid.bidder.trim() === ""
+	) {
 		return res.status(400).json({ error: "Bidder name is required" });
 	}
 
-	if (typeof bid.amount !== "number" || Number.isNaN(bid.amount) || bid.amount <= 0) {
+	if (
+		typeof bid.amount !== "number" ||
+		Number.isNaN(bid.amount) ||
+		bid.amount <= 0
+	) {
 		return res
 			.status(400)
 			.json({ error: "Bid amount must be a positive number" });
@@ -183,6 +207,9 @@ app.post("/api/listings/:id/bids", (req: Request, res: Response) => {
 	return res.status(201).json(listing);
 });
 
+/**
+ * Starts the Express server on the interview auction API port.
+ */
 app.listen(PORT, () => {
 	console.log(`Server running at http://localhost:${PORT}`);
 });

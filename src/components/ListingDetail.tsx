@@ -1,11 +1,17 @@
-import BidForm from "./BidForm";
 import type { Listing } from "../types";
+import BidForm from "./BidForm";
 
 interface Props {
 	listing: Listing;
 	onBidSuccess: (updated: Listing) => void;
 }
 
+/**
+ * Formats the auction end timestamp for display.
+ *
+ * @param {string} iso
+ * @returns {string}
+ */
 function formatDate(iso: string): string {
 	return new Date(iso).toLocaleString(undefined, {
 		year: "numeric",
@@ -16,6 +22,12 @@ function formatDate(iso: string): string {
 	});
 }
 
+/**
+ * Shows the full listing details and bidding controls for the selected lot.
+ *
+ * @param {Props} { listing, onBidSuccess }
+ * @returns {JSX.Element}
+ */
 export default function ListingDetail({ listing, onBidSuccess }: Props) {
 	return (
 		<div className="listing-detail">

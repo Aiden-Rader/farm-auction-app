@@ -6,6 +6,13 @@ interface Props {
 	onClick: () => void;
 }
 
+/**
+ * Formats the remaining auction time for the listing card.
+ *
+ * @param {string} endsAt
+ * @param {string} status
+ * @returns {string}
+ */
 function timeRemaining(endsAt: string, status: string): string {
 	if (status === "closed") return "Ended";
 	const diff = new Date(endsAt).getTime() - Date.now();
@@ -17,6 +24,12 @@ function timeRemaining(endsAt: string, status: string): string {
 	return "Less than an hour left";
 }
 
+/**
+ * Renders a compact auction summary card for the listings sidebar.
+ *
+ * @param {Props} { listing, isSelected, onClick }
+ * @returns {JSX.Element}
+ */
 export default function ListingCard({ listing, isSelected, onClick }: Props) {
 	const closed = listing.status === "closed";
 
