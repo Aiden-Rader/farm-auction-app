@@ -54,13 +54,40 @@ const listings: Listing[] = JSON.parse(
 // ============================================================
 
 const app = express();
+const validCategories: Category[] = [
+	"tractor",
+	"combine",
+	"implement",
+	"attachment",
+];
 
 app.use(cors({ origin: "http://localhost:5173" }));
 app.use(express.json());
 
 // GET /api/listings
-app.get("/api/listings", (_req: Request, res: Response) => {
-	res.json(listings);
+app.get("/api/listings", (req: Request, res: Response) => {
+	const search =
+		typeof req.query.search === "string"
+			? req.query.search.trim().toLowerCase()
+			: "";
+	const category =
+		typeof req.query.category === "string" ? req.query.category.trim() : "";
+
+	const filtered = listings.filter((listing) => {
+		const matchesSearch =
+			search === "" ||
+			listing.title.toLowerCase().includes(search) ||
+			listing.description.toLowerCase().includes(search);
+		const matchesCategory =
+			category === "" ||
+			category === "all" ||
+			(validCategories.includes(category as Category) &&
+				listing.category === category);
+
+		return matchesSearch && matchesCategory;
+	});
+
+	res.json(filtered);
 });
 
 // POST /api/listings

@@ -3,25 +3,48 @@ import { getListings } from "./api/listings";
 import CreateListingForm from "./components/CreateListingForm";
 import ListingCard from "./components/ListingCard";
 import ListingDetail from "./components/ListingDetail";
-import type { Listing } from "./types";
+import { type Listing, type ListingCategory, listingCategories } from "./types";
 
 export default function App() {
 	const [listings, setListings] = useState<Listing[]>([]);
 	const [selectedId, setSelectedId] = useState<string | null>(null);
 	const [showCreateForm, setShowCreateForm] = useState(false);
+	const [searchTerm, setSearchTerm] = useState("");
+	const [categoryFilter, setCategoryFilter] = useState<ListingCategory | "all">(
+		"all",
+	);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
-		getListings()
+		const controller = new AbortController();
+
+		setLoading(true);
+		setError(null);
+
+		getListings({
+			search: searchTerm,
+			category: categoryFilter,
+			signal: controller.signal,
+		})
 			.then((data) => setListings(data))
-			.catch((err) =>
+			.catch((err) => {
+				if (err instanceof Error && err.name === "AbortError") {
+					return;
+				}
+
 				setError(
 					err instanceof Error ? err.message : "Failed to load listings",
-				),
-			)
-			.finally(() => setLoading(false));
-	}, []);
+				);
+			})
+			.finally(() => {
+				if (!controller.signal.aborted) {
+					setLoading(false);
+				}
+			});
+
+		return () => controller.abort();
+	}, [searchTerm, categoryFilter]);
 
 	const selectedListing = listings.find((l) => l.id === selectedId) ?? null;
 
@@ -29,10 +52,27 @@ export default function App() {
 		setListings((prev) => prev.map((l) => (l.id === updated.id ? updated : l)));
 	};
 
-	const handleListingCreated = (listing: Listing) => {
-		setListings((prev) => [...prev, listing]);
-		setSelectedId(listing.id);
+	const refreshListings = async () => {
+		const data = await getListings({
+			search: searchTerm,
+			category: categoryFilter,
+		});
+		setListings(data);
+		return data;
+	};
+
+	const handleListingCreated = async (listing: Listing) => {
+		const normalizedSearch = searchTerm.trim().toLowerCase();
+		const matchesSearch =
+			normalizedSearch === "" ||
+			listing.title.toLowerCase().includes(normalizedSearch) ||
+			listing.description.toLowerCase().includes(normalizedSearch);
+		const matchesCategory =
+			categoryFilter === "all" || listing.category === categoryFilter;
+
+		setSelectedId(matchesSearch && matchesCategory ? listing.id : null);
 		setShowCreateForm(false);
+		await refreshListings();
 	};
 
 	const closeCreateModal = () => {
@@ -65,6 +105,39 @@ export default function App() {
 			</header>
 			<div className="app-body">
 				<aside className="panel panel--left">
+					<div className="filters">
+						<div className="bid-form__field">
+							<label htmlFor="search">Search</label>
+							<input
+								id="search"
+								name="search"
+								type="search"
+								placeholder="Search title or description"
+								value={searchTerm}
+								onChange={(event) => setSearchTerm(event.target.value)}
+							/>
+						</div>
+						<div className="bid-form__field">
+							<label htmlFor="category-filter">Category</label>
+							<select
+								id="category-filter"
+								name="category-filter"
+								value={categoryFilter}
+								onChange={(event) =>
+									setCategoryFilter(
+										event.target.value as ListingCategory | "all",
+									)
+								}
+							>
+								<option value="all">All Categories</option>
+								{listingCategories.map((category) => (
+									<option key={category} value={category}>
+										{category}
+									</option>
+								))}
+							</select>
+						</div>
+					</div>
 					<div className="panel__heading-row">
 						<h2 className="panel__heading">Listings</h2>
 						<button
@@ -78,11 +151,16 @@ export default function App() {
 							+ New
 						</button>
 					</div>
-					{loading && <div className="state-message">Loading listings…</div>}
+					{loading && <div className="state-message">Loading listings...</div>}
 					{error && (
 						<div className="state-message state-message--error">{error}</div>
 					)}
-					{!loading && !error && (
+					{!loading && !error && listings.length === 0 && (
+						<div className="empty-state empty-state--listings">
+							<p>No listings match your filters.</p>
+						</div>
+					)}
+					{!loading && !error && listings.length > 0 && (
 						<div className="listing-grid">
 							{listings.map((listing) => (
 								<ListingCard
@@ -109,7 +187,6 @@ export default function App() {
 				</main>
 			</div>
 
-			{/* Create listing modal */}
 			{showCreateForm && (
 				<div className="modal-layer">
 					<button

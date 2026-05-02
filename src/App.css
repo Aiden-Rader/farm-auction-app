@@ -113,6 +113,16 @@ body.body--modal-open {
 	color: #fff;
 }
 
+.filters {
+	display: grid;
+	gap: 12px;
+	margin-bottom: 18px;
+	padding: 16px;
+	background: #f8fbfc;
+	border: 1px solid #e1eaee;
+	border-radius: 12px;
+}
+
 /* ============================================================
    Listing grid
    ============================================================ */
@@ -131,9 +141,7 @@ body.body--modal-open {
 	overflow: hidden;
 	cursor: pointer;
 	background: #fff;
-	transition:
-		border-color 0.15s,
-		box-shadow 0.15s;
+	transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .listing-card:hover {
@@ -430,10 +438,7 @@ body.body--modal-open {
 	font-size: 0.95rem;
 	font-weight: 600;
 	cursor: pointer;
-	transition:
-		border-color 0.15s,
-		color 0.15s,
-		background 0.15s;
+	transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
 
 .bid-form__cancel:hover:not(:disabled) {
@@ -545,4 +550,10 @@ body.body--modal-open {
 	height: 100%;
 	color: #aaa;
 	font-size: 1rem;
+}
+
+.empty-state--listings {
+	align-items: flex-start;
+	justify-content: flex-start;
+	min-height: 160px;
 }
